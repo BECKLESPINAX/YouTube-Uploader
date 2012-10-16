@@ -45,6 +45,8 @@ namespace YT_Uploader
 
         StringCollection VideoFilename = new StringCollection();
         StringCollection VideoId = new StringCollection();
+        StringCollection VideoStatus = new StringCollection();
+
         DirectoryInfo Di;
         string stored_IncludeFolder = Youtube_Uploader.Properties.Settings.Default.IncludeFolder;
 
@@ -67,6 +69,7 @@ namespace YT_Uploader
             
             VideoFilename = Youtube_Uploader.Properties.Settings.Default.FilesLib;
             VideoId = Youtube_Uploader.Properties.Settings.Default.IdLib;
+            VideoStatus = Youtube_Uploader.Properties.Settings.Default.StatusLib;
             
             YouTubeRequestSettings settings = new YouTubeRequestSettings("Deprecated", key, Youtube_Uploader.Properties.Settings.Default.UsernameYT, Youtube_Uploader.Properties.Settings.Default.PasswordYT);
             request = new YouTubeRequest(settings);  
@@ -164,7 +167,9 @@ namespace YT_Uploader
                 textComplete.Visible = true;
                 buttonUpload.Enabled = false;
                 Youtube_Uploader.Properties.Settings.Default.IdLib.Add(VideoID);
+                Youtube_Uploader.Properties.Settings.Default.StatusLib.Add("Complete");
                 Youtube_Uploader.Properties.Settings.Default.FilesLib.Add(listVideosView.FocusedItem.Text);
+                
                 Youtube_Uploader.Properties.Settings.Default.Save();
 
                 drawVideoList();
@@ -250,10 +255,18 @@ namespace YT_Uploader
                             if (newVideo.Status == null) { Video.SubItems.Add("Completed"); }
                             else Video.SubItems.Add(newVideo.Status.Value);
                             Video.SubItems.Add(VideoId[i]);
+                            Youtube_Uploader.Properties.Settings.Default.FilesLib[i] = VideoFilename[i];
+                            Youtube_Uploader.Properties.Settings.Default.StatusLib[i] = Video.SubItems[1].Text;
+                            Youtube_Uploader.Properties.Settings.Default.IdLib[i] = VideoId[i];
+
                         }
                     }
                 }
+
             }
+
+
+            Youtube_Uploader.Properties.Settings.Default.Save();
         }
 
         private void drawVideoList()
@@ -265,10 +278,10 @@ namespace YT_Uploader
             foreach (FileInfo name in Di.GetFiles())
             {
                 ListViewItem Video = new ListViewItem(name.Name); //Add an entry for each file in the sync directory
-                listVideosView.Items.Add(Video);
+                listVideosView.Items.Add(Video); 
                 if (VideoFilename.Contains(name.Name))
                 {
-                    Video.SubItems.Add("Completed"); //Naievely assume existing videos are complete for now.
+                    Video.SubItems.Add(VideoStatus[VideoFilename.IndexOf(name.Name)]); //Naievely assume existing videos are complete for now.
                     Video.SubItems.Add(VideoId[VideoFilename.IndexOf(name.Name)]);
                 }
             }
@@ -292,7 +305,7 @@ namespace YT_Uploader
         {
             
             textBox_UploadFile.Text = ((ListView)(sender)).FocusedItem.Text;
-            if (((ListView)(sender)).FocusedItem.SubItems.Count > 1)
+            if (((ListView)(sender)).FocusedItem.SubItems.Count > 1) //Don't let user look at links for videos with no ID.
             {
                 Link.VideoID = ((ListView)(sender)).FocusedItem.SubItems[2].Text;
                 buttonLinks.Enabled = true;
@@ -315,6 +328,7 @@ namespace YT_Uploader
         private void btn_Clear_Click(object sender, EventArgs e)
         {
             Youtube_Uploader.Properties.Settings.Default.FilesLib.Clear();
+            Youtube_Uploader.Properties.Settings.Default.StatusLib.Clear();
             Youtube_Uploader.Properties.Settings.Default.IdLib.Clear();
             Youtube_Uploader.Properties.Settings.Default.Save();
         }

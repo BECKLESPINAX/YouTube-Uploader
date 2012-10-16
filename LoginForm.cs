@@ -41,6 +41,16 @@ namespace YT_Uploader
         {
             if (loginFlag && passwordFlag) this.Hide(); //User needs to input 'something'.
             String key = @"AI39si5BLf_EKytNzPVPtepg-yNDLPSxKOP9ZCBaDTErR5nWmFMy36d8jnKOfwU3PN0c61au0l6b68k9lk7GRluBKh7lvlNRzA"; //My personal API key.
+
+            YouTubeService service = new YouTubeService("YouTube Synchronizer");
+            service.setUserCredentials(textLogin.Text, textPassword.Text);
+            //textbox1 contains username and maskedTextBox1 contains password
+            try
+            {
+                service.QueryClientLoginToken();
+            }
+            catch (System.Net.WebException j) { MessageBox.Show(j.Message); }
+
             YouTubeRequestSettings settings = new YouTubeRequestSettings("Deprecated", key, textLogin.Text, textPassword.Text);
             Youtube_Uploader.Properties.Settings.Default.UsernameYT = textLogin.Text;
             Youtube_Uploader.Properties.Settings.Default.PasswordYT = textPassword.Text;
