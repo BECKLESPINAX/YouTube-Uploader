@@ -55,7 +55,7 @@ namespace YT_Uploader
             InitializeComponent();
             buttonUpload.Enabled = false; //Disable buttons by default.
             textComplete.Visible = false;
-            buttonLinks.Visible = false;
+            
             comboCategory.SelectedIndex = 0; //No selection is invalid. 
             vidFlag = false;            //User must provide credentials and a video before uploading.
             loginFlag = false;
@@ -160,7 +160,7 @@ namespace YT_Uploader
             if (!String.IsNullOrEmpty(newVideo.VideoId)  ) //Got a valid URL back.
             {
                 VideoID = newVideo.VideoId;
-                buttonLinks.Visible = true;
+                
                 textComplete.Visible = true;
                 buttonUpload.Enabled = false;
                 Youtube_Uploader.Properties.Settings.Default.IdLib.Add(VideoID);
@@ -290,7 +290,15 @@ namespace YT_Uploader
 
         private void listVideosView_SelectedIndexChanged(object sender, EventArgs e)
         {
+            
             textBox_UploadFile.Text = ((ListView)(sender)).FocusedItem.Text;
+            if (((ListView)(sender)).FocusedItem.SubItems.Count > 1)
+            {
+                Link.VideoID = ((ListView)(sender)).FocusedItem.SubItems[2].Text;
+                buttonLinks.Enabled = true;
+            }
+            else buttonLinks.Enabled = false;
+            
             try
             {
                 if (((ListView)(sender)).FocusedItem.SubItems[1].Text == "Completed") buttonUpload.Enabled = false;

@@ -14,9 +14,14 @@ namespace YT_Uploader
         public LinkForm()
         {
             InitializeComponent();
-            videoLinks.Text = "Youtube:  " + "https://www.youtube.com/watch?v=" + MainForm.VideoID + Environment.NewLine + Environment.NewLine + Environment.NewLine;
-            videoLinks.AppendText(@"http://www.polsy.org.uk/play/yt/?vurl=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D" + MainForm.VideoID);
+            videoLinks.Text = "https://www.youtube.com/watch?v=" + Link.VideoID + Environment.NewLine + Environment.NewLine + Environment.NewLine;
+            videoLinks.AppendText(@"http://www.polsy.org.uk/play/yt/?vurl=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D" + Link.VideoID);
         }
         
+    }
+
+    public static class Link
+    {
+        public static string VideoID { get; set; }
     }
 }
