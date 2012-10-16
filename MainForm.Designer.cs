@@ -56,6 +56,7 @@
             this.btn_Clear = new System.Windows.Forms.Button();
             this.DoIt = new System.Windows.Forms.Button();
             this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
+            this.label1 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.VideoWatcher)).BeginInit();
             this.SuspendLayout();
             // 
@@ -67,7 +68,7 @@
             this.openVideo.TabIndex = 0;
             this.openVideo.Text = "Scan";
             this.openVideo.UseVisualStyleBackColor = true;
-            this.openVideo.Click += new System.EventHandler(this.openVideo_Click);
+            this.openVideo.Click += new System.EventHandler(this.scanVideo_Click);
             // 
             // buttonUpload
             // 
@@ -81,10 +82,11 @@
             // 
             // textBox_UploadFile
             // 
-            this.textBox_UploadFile.Location = new System.Drawing.Point(45, 75);
+            this.textBox_UploadFile.BackColor = System.Drawing.SystemColors.Window;
+            this.textBox_UploadFile.Location = new System.Drawing.Point(171, 75);
             this.textBox_UploadFile.Name = "textBox_UploadFile";
             this.textBox_UploadFile.ReadOnly = true;
-            this.textBox_UploadFile.Size = new System.Drawing.Size(576, 20);
+            this.textBox_UploadFile.Size = new System.Drawing.Size(450, 20);
             this.textBox_UploadFile.TabIndex = 2;
             // 
             // labelTitle
@@ -262,6 +264,7 @@
             this.ID});
             this.listVideosView.FullRowSelect = true;
             this.listVideosView.GridLines = true;
+            this.listVideosView.HideSelection = false;
             this.listVideosView.Location = new System.Drawing.Point(645, 130);
             this.listVideosView.Name = "listVideosView";
             this.listVideosView.Size = new System.Drawing.Size(261, 343);
@@ -310,11 +313,21 @@
             this.backgroundWorker1.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorker1_DoWork);
             this.backgroundWorker1.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorker1_RunWorkerCompleted);
             // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(74, 78);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(91, 13);
+            this.label1.TabIndex = 24;
+            this.label1.Text = "Current Selection:";
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(918, 568);
+            this.Controls.Add(this.label1);
             this.Controls.Add(this.DoIt);
             this.Controls.Add(this.btn_Clear);
             this.Controls.Add(this.listVideosView);
@@ -375,6 +388,7 @@
         private System.Windows.Forms.Button DoIt;
         private System.ComponentModel.BackgroundWorker backgroundWorker1;
         private System.Windows.Forms.ListView listVideosView;
+        private System.Windows.Forms.Label label1;
 
 
     }

@@ -76,7 +76,7 @@ namespace YT_Uploader
 
        
         
-        private void openVideo_Click(object sender, EventArgs e)
+        private void scanVideo_Click(object sender, EventArgs e)
         {
             scanVideoList();
         }
@@ -290,6 +290,7 @@ namespace YT_Uploader
 
         private void listVideosView_SelectedIndexChanged(object sender, EventArgs e)
         {
+            textBox_UploadFile.Text = ((ListView)(sender)).FocusedItem.Text;
             try
             {
                 if (((ListView)(sender)).FocusedItem.SubItems[1].Text == "Completed") buttonUpload.Enabled = false;
@@ -317,8 +318,6 @@ namespace YT_Uploader
 
         private bool ConfirmID(string vidID)
         {
-            bool tf;
-            
             YouTubeRequestSettings settings = new YouTubeRequestSettings("Deprecated", key, Youtube_Uploader.Properties.Settings.Default.UsernameYT, Youtube_Uploader.Properties.Settings.Default.PasswordYT);
             YouTubeRequest request = new YouTubeRequest(settings);
             //Uri videoEntryUrl = new Uri(String.Format("http://gdata.youtube.com/feeds/api/users/{0}/uploads/{1}", "user00015", vidID));
@@ -327,12 +326,9 @@ namespace YT_Uploader
             try
             {
                 newVideo = request.Retrieve<Video>(videoEntryUrl); //Make this Async eventually if possible.
-                tf = true;
+                return true;
             }
-            catch { tf = false; }
-
-            return tf;
-             
+            catch { return false; }
         }
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
@@ -342,11 +338,9 @@ namespace YT_Uploader
 
         private void DoIt_Click(object sender, EventArgs e)
         {
-            //Changing files
+            //debug button
         }
 
-        
-
-        
+       
     }
 }
