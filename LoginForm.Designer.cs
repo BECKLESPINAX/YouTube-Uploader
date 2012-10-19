@@ -34,6 +34,7 @@
             this.textLogin = new System.Windows.Forms.TextBox();
             this.loginDone = new System.Windows.Forms.Button();
             this.LoginCancel = new System.Windows.Forms.Button();
+            this.loginTxt_lbl = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // labelLogin
@@ -95,11 +96,23 @@
             this.LoginCancel.UseVisualStyleBackColor = true;
             this.LoginCancel.Click += new System.EventHandler(this.LoginCancel_Click);
             // 
+            // loginTxt_lbl
+            // 
+            this.loginTxt_lbl.AutoSize = true;
+            this.loginTxt_lbl.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.loginTxt_lbl.Location = new System.Drawing.Point(53, 113);
+            this.loginTxt_lbl.Name = "loginTxt_lbl";
+            this.loginTxt_lbl.Size = new System.Drawing.Size(162, 24);
+            this.loginTxt_lbl.TabIndex = 5;
+            this.loginTxt_lbl.Text = "Invalid Credentials";
+            this.loginTxt_lbl.Visible = false;
+            // 
             // LoginForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(284, 262);
+            this.Controls.Add(this.loginTxt_lbl);
             this.Controls.Add(this.LoginCancel);
             this.Controls.Add(this.loginDone);
             this.Controls.Add(this.textLogin);
@@ -121,5 +134,6 @@
         private System.Windows.Forms.TextBox textLogin;
         private System.Windows.Forms.Button loginDone;
         private System.Windows.Forms.Button LoginCancel;
+        private System.Windows.Forms.Label loginTxt_lbl;
     }
 }

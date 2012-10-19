@@ -17,6 +17,7 @@ using Google.GData.Client;
 using Google.GData.Client.ResumableUpload;
 using Google.GData.Extensions;
 using Google.GData.Extensions.MediaRss;
+using System.Configuration;
 
 namespace YT_Uploader
 {
@@ -58,7 +59,7 @@ namespace YT_Uploader
             buttonUpload.Enabled = false; //Disable buttons by default.
             textComplete.Visible = false;
             
-            comboCategory.SelectedIndex = 0; //No selection is invalid. 
+            comboCategory.SelectedIndex = 7; //No selection is invalid. 
             vidFlag = false;            //User must provide credentials and a video before uploading.
             loginFlag = false;
 
@@ -252,7 +253,9 @@ namespace YT_Uploader
                     {
                         if (ConfirmID(VideoId[i]))
                         {
+                            //Name = "processing"
                             if (newVideo.Status == null) { Video.SubItems.Add("Completed"); }
+                            else if (newVideo.Status.Name == "processing") { Video.SubItems.Add("Procesing"); }
                             else Video.SubItems.Add(newVideo.Status.Value);
                             Video.SubItems.Add(VideoId[i]);
                             Youtube_Uploader.Properties.Settings.Default.FilesLib[i] = VideoFilename[i];
@@ -303,23 +306,16 @@ namespace YT_Uploader
 
         private void listVideosView_SelectedIndexChanged(object sender, EventArgs e)
         {
-            
             textBox_UploadFile.Text = ((ListView)(sender)).FocusedItem.Text;
             if (((ListView)(sender)).FocusedItem.SubItems.Count > 1) //Don't let user look at links for videos with no ID.
             {
                 Link.VideoID = ((ListView)(sender)).FocusedItem.SubItems[2].Text;
                 buttonLinks.Enabled = true;
+                buttonUpload.Enabled = false;
             }
-            else buttonLinks.Enabled = false;
-            
-            try
+            else
             {
-                if (((ListView)(sender)).FocusedItem.SubItems[1].Text == "Completed") buttonUpload.Enabled = false;
-                wth = listVideosView.FocusedItem.Text;
-            }
-
-            catch
-            {
+                buttonLinks.Enabled = false;
                 buttonUpload.Enabled = true;
             }
             textComplete.Visible = false; //Clear 'complete' text when user changes a selection.
@@ -360,9 +356,36 @@ namespace YT_Uploader
 
         private void DoIt_Click(object sender, EventArgs e)
         {
-            //debug button
+
+            if (MessageBox.Show("WARNING: Deleting this file will delete it locally!", "Confirm", MessageBoxButtons.YesNo) == DialogResult.Yes && listVideosView.FocusedItem.SubItems.Count > 1)
+            {
+                YouTubeRequestSettings settings = new YouTubeRequestSettings("Deprecated", key, Youtube_Uploader.Properties.Settings.Default.UsernameYT, Youtube_Uploader.Properties.Settings.Default.PasswordYT);
+                YouTubeRequest request = new YouTubeRequest(settings);
+                Uri videoEntryUrl = new Uri(String.Format("http://gdata.youtube.com/feeds/api/users/{0}/uploads/{1}", TrimEmail(Youtube_Uploader.Properties.Settings.Default.UsernameYT), listVideosView.FocusedItem.SubItems[2].Text));
+                Video video = request.Retrieve<Video>(videoEntryUrl);
+                request.Delete(video);
+                Youtube_Uploader.Properties.Settings.Default.StatusLib.RemoveAt(VideoId.IndexOf(video.VideoId));
+                Youtube_Uploader.Properties.Settings.Default.FilesLib.RemoveAt(VideoId.IndexOf(video.VideoId));
+                Youtube_Uploader.Properties.Settings.Default.IdLib.RemoveAt(VideoId.IndexOf(video.VideoId));
+                Youtube_Uploader.Properties.Settings.Default.Save();
+
+                File.Delete(includeTextBox.Text + "\\" + textBox_UploadFile.Text);
+
+                
+            }
+
+            else File.Delete(includeTextBox.Text + "\\" + textBox_UploadFile.Text);
+
+            drawVideoList();
         }
 
+        private string TrimEmail(string s)
+        {
+            bool tf = s.Contains("@");
+            if (tf) return s.Substring(0, s.IndexOf("@"));
+            else return s;
+
+        }
        
     }
 }
