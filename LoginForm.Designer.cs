@@ -99,12 +99,13 @@
             // loginTxt_lbl
             // 
             this.loginTxt_lbl.AutoSize = true;
-            this.loginTxt_lbl.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.loginTxt_lbl.Location = new System.Drawing.Point(53, 113);
+            this.loginTxt_lbl.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.loginTxt_lbl.ForeColor = System.Drawing.Color.Red;
+            this.loginTxt_lbl.Location = new System.Drawing.Point(41, 115);
             this.loginTxt_lbl.Name = "loginTxt_lbl";
-            this.loginTxt_lbl.Size = new System.Drawing.Size(162, 24);
+            this.loginTxt_lbl.Size = new System.Drawing.Size(200, 16);
             this.loginTxt_lbl.TabIndex = 5;
-            this.loginTxt_lbl.Text = "Invalid Credentials";
+            this.loginTxt_lbl.Text = "Username/Password are invalid";
             this.loginTxt_lbl.Visible = false;
             // 
             // LoginForm

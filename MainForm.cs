@@ -51,13 +51,15 @@ namespace YT_Uploader
         DirectoryInfo Di;
         string stored_IncludeFolder = Youtube_Uploader.Properties.Settings.Default.IncludeFolder;
 
-        string wth; //Issue with object scope? Will fix later. This is a workaround.
+        //string wth; FIXED -- Issue with object scope? Will fix later. This is a workaround.
 
         public MainForm()
         {
             InitializeComponent();
             buttonUpload.Enabled = false; //Disable buttons by default.
             textComplete.Visible = false;
+            btnDelete.Enabled = false;
+            btnAdd.Enabled = false;
             
             comboCategory.SelectedIndex = 7; //No selection is invalid. 
             vidFlag = false;            //User must provide credentials and a video before uploading.
@@ -167,10 +169,10 @@ namespace YT_Uploader
                 
                 textComplete.Visible = true;
                 buttonUpload.Enabled = false;
+                
                 Youtube_Uploader.Properties.Settings.Default.IdLib.Add(VideoID);
                 Youtube_Uploader.Properties.Settings.Default.StatusLib.Add("Complete");
                 Youtube_Uploader.Properties.Settings.Default.FilesLib.Add(listVideosView.FocusedItem.Text);
-                
                 Youtube_Uploader.Properties.Settings.Default.Save();
 
                 drawVideoList();
@@ -319,14 +321,19 @@ namespace YT_Uploader
                 buttonUpload.Enabled = true;
             }
             textComplete.Visible = false; //Clear 'complete' text when user changes a selection.
+            btnDelete.Enabled = true;
+            btnAdd.Enabled = true;
         }
 
-        private void btn_Clear_Click(object sender, EventArgs e)
+        private void btnClear_Click(object sender, EventArgs e)
         {
+            if (MessageBox.Show("WARNING: This will clear ALL entries!", "Confirm", MessageBoxButtons.YesNo) == DialogResult.Yes)
+            {
             Youtube_Uploader.Properties.Settings.Default.FilesLib.Clear();
             Youtube_Uploader.Properties.Settings.Default.StatusLib.Clear();
             Youtube_Uploader.Properties.Settings.Default.IdLib.Clear();
             Youtube_Uploader.Properties.Settings.Default.Save();
+            }
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -351,10 +358,10 @@ namespace YT_Uploader
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-
+           //Add later
         }
 
-        private void DoIt_Click(object sender, EventArgs e)
+        private void btnDelete_Click(object sender, EventArgs e)
         {
 
             if (MessageBox.Show("WARNING: Deleting this file will delete it locally!", "Confirm", MessageBoxButtons.YesNo) == DialogResult.Yes && listVideosView.FocusedItem.SubItems.Count > 1)
@@ -364,6 +371,7 @@ namespace YT_Uploader
                 Uri videoEntryUrl = new Uri(String.Format("http://gdata.youtube.com/feeds/api/users/{0}/uploads/{1}", TrimEmail(Youtube_Uploader.Properties.Settings.Default.UsernameYT), listVideosView.FocusedItem.SubItems[2].Text));
                 Video video = request.Retrieve<Video>(videoEntryUrl);
                 request.Delete(video);
+                
                 Youtube_Uploader.Properties.Settings.Default.StatusLib.RemoveAt(VideoId.IndexOf(video.VideoId));
                 Youtube_Uploader.Properties.Settings.Default.FilesLib.RemoveAt(VideoId.IndexOf(video.VideoId));
                 Youtube_Uploader.Properties.Settings.Default.IdLib.RemoveAt(VideoId.IndexOf(video.VideoId));
@@ -371,12 +379,10 @@ namespace YT_Uploader
 
                 File.Delete(includeTextBox.Text + "\\" + textBox_UploadFile.Text);
 
-                
+                drawVideoList();
             }
 
-            else File.Delete(includeTextBox.Text + "\\" + textBox_UploadFile.Text);
-
-            drawVideoList();
+            
         }
 
         private string TrimEmail(string s)
@@ -385,6 +391,68 @@ namespace YT_Uploader
             if (tf) return s.Substring(0, s.IndexOf("@"));
             else return s;
 
+        }
+
+        private void btnAdd_Click(object sender, EventArgs e)
+        {
+          Form form = new Form();
+          Label label = new Label();
+          TextBox textBox = new TextBox();
+          Button buttonOk = new Button();
+          Button buttonCancel = new Button();
+
+          form.Text = "Enter video ID";
+          label.Text = "Video ID";
+            
+          buttonOk.Text = "OK";
+          buttonCancel.Text = "Cancel";
+          buttonOk.DialogResult = DialogResult.OK;
+          buttonCancel.DialogResult = DialogResult.Cancel;
+
+          label.SetBounds(9, 20, 372, 13);
+          textBox.SetBounds(12, 36, 372, 20);
+          buttonOk.SetBounds(228, 72, 75, 23);
+          buttonCancel.SetBounds(309, 72, 75, 23);
+          label.AutoSize = true;
+          textBox.Anchor = textBox.Anchor | AnchorStyles.Right;
+          buttonOk.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+          buttonCancel.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+
+          form.ClientSize = new Size(396, 107);
+          form.Controls.AddRange(new Control[] { label, textBox, buttonOk, buttonCancel });
+          form.ClientSize = new Size(Math.Max(300, label.Right + 10), form.ClientSize.Height);
+          form.FormBorderStyle = FormBorderStyle.FixedDialog;
+          form.StartPosition = FormStartPosition.CenterScreen;
+          form.MinimizeBox = false;
+          form.MaximizeBox = false;
+          form.AcceptButton = buttonOk;
+          form.CancelButton = buttonCancel;
+
+          DialogResult dialogResult = form.ShowDialog();
+          string value = textBox.Text;
+
+          if (form.DialogResult == DialogResult.OK ) 
+          {
+              int i = listVideosView.FocusedItem.Index;
+              
+              //if (value.Contains("?v=")) listVideosView.FocusedItem.SubItems.Add(value.Substring(value.LastIndexOf("?v=") + 3));
+              //else listVideosView.FocusedItem.SubItems.Add(value);
+
+              if (value.Contains("?v="))
+              {
+                  VideoFilename.Add(listVideosView.FocusedItem.Text);
+                  VideoStatus.Add("Completed");
+                  VideoId.Add(value.Substring(value.LastIndexOf("?v=") + 3));
+              }
+              else
+              {
+                  VideoFilename.Add(listVideosView.FocusedItem.Text);
+                  VideoStatus.Add("Completed");
+                  VideoId.Add(value);
+              }
+          }
+
+          drawVideoList();
         }
        
     }
