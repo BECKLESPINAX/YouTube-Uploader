@@ -169,12 +169,11 @@ namespace YT_Uploader
                 
                 textComplete.Visible = true;
                 buttonUpload.Enabled = false;
-                
-                Youtube_Uploader.Properties.Settings.Default.IdLib.Add(VideoID);
-                Youtube_Uploader.Properties.Settings.Default.StatusLib.Add("Complete");
-                Youtube_Uploader.Properties.Settings.Default.FilesLib.Add(listVideosView.FocusedItem.Text);
-                Youtube_Uploader.Properties.Settings.Default.Save();
 
+                VideoId.Add(VideoID);
+                VideoStatus.Add("Uploaded");
+                VideoFilename.Add(listVideosView.FocusedItem.Text);
+               
                 drawVideoList();
             }
         }
@@ -242,36 +241,34 @@ namespace YT_Uploader
 
         private void scanVideoList()
         {
-            int count = Youtube_Uploader.Properties.Settings.Default.IdLib.Count;
+            
             Di = new DirectoryInfo(includeTextBox.Text);
             listVideosView.Items.Clear();
             foreach (FileInfo name in Di.GetFiles())
             {
                 ListViewItem Video = new ListViewItem(name.Name); //Add an entry for each file in the sync directory
                 listVideosView.Items.Add(Video);
-                for (int i = 0; i < count; i++) //Look to see if videos in the sync directory have an uploaded entry.
+                for (int i = 0; i < VideoFilename.Count; i++) //Look to see if videos in the sync directory have an uploaded entry.
                 {                               //FIXME: See about improving this later. Looks messy.
                     if (VideoFilename[i] == name.Name)
                     {
                         if (ConfirmID(VideoId[i]))
                         {
                             //Name = "processing"
-                            if (newVideo.Status == null) { Video.SubItems.Add("Completed"); }
-                            else if (newVideo.Status.Name == "processing") { Video.SubItems.Add("Procesing"); }
-                            else Video.SubItems.Add(newVideo.Status.Value);
+                            if (newVideo.Status == null) { Video.SubItems.Add("Completed"); VideoStatus[i] = "Completed"; }
+                            else if (newVideo.Status.Name == "processing") { Video.SubItems.Add("Processing"); VideoStatus[i] = "Processing"; }
+                            else { Video.SubItems.Add(newVideo.Status.Value); VideoStatus[i] = newVideo.Status.Value; }
                             Video.SubItems.Add(VideoId[i]);
-                            Youtube_Uploader.Properties.Settings.Default.FilesLib[i] = VideoFilename[i];
-                            Youtube_Uploader.Properties.Settings.Default.StatusLib[i] = Video.SubItems[1].Text;
-                            Youtube_Uploader.Properties.Settings.Default.IdLib[i] = VideoId[i];
+                            
 
                         }
+                        else { VideoId.RemoveAt(i); VideoFilename.RemoveAt(i); VideoStatus.RemoveAt(i); }
                     }
+                    
                 }
 
             }
-
-
-            Youtube_Uploader.Properties.Settings.Default.Save();
+           
         }
 
         private void drawVideoList()
@@ -358,12 +355,15 @@ namespace YT_Uploader
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-           //Add later
+            Youtube_Uploader.Properties.Settings.Default.FilesLib = VideoFilename;
+            Youtube_Uploader.Properties.Settings.Default.StatusLib = VideoStatus;
+            Youtube_Uploader.Properties.Settings.Default.IdLib = VideoId;
+            Youtube_Uploader.Properties.Settings.Default.Save();
         }
 
         private void btnDelete_Click(object sender, EventArgs e)
         {
-
+            //Should delete work on local files, or let the user do that manually?
             if (MessageBox.Show("WARNING: Deleting this file will delete it locally!", "Confirm", MessageBoxButtons.YesNo) == DialogResult.Yes && listVideosView.FocusedItem.SubItems.Count > 1)
             {
                 YouTubeRequestSettings settings = new YouTubeRequestSettings("Deprecated", key, Youtube_Uploader.Properties.Settings.Default.UsernameYT, Youtube_Uploader.Properties.Settings.Default.PasswordYT);
@@ -372,10 +372,9 @@ namespace YT_Uploader
                 Video video = request.Retrieve<Video>(videoEntryUrl);
                 request.Delete(video);
                 
-                Youtube_Uploader.Properties.Settings.Default.StatusLib.RemoveAt(VideoId.IndexOf(video.VideoId));
-                Youtube_Uploader.Properties.Settings.Default.FilesLib.RemoveAt(VideoId.IndexOf(video.VideoId));
-                Youtube_Uploader.Properties.Settings.Default.IdLib.RemoveAt(VideoId.IndexOf(video.VideoId));
-                Youtube_Uploader.Properties.Settings.Default.Save();
+                VideoFilename.RemoveAt(VideoId.IndexOf(video.VideoId));
+                VideoStatus.RemoveAt(VideoId.IndexOf(video.VideoId));
+                VideoId.RemoveAt(VideoId.IndexOf(video.VideoId));
 
                 File.Delete(includeTextBox.Text + "\\" + textBox_UploadFile.Text);
 
@@ -395,63 +394,50 @@ namespace YT_Uploader
 
         private void btnAdd_Click(object sender, EventArgs e)
         {
-          Form form = new Form();
-          Label label = new Label();
-          TextBox textBox = new TextBox();
-          Button buttonOk = new Button();
-          Button buttonCancel = new Button();
-
-          form.Text = "Enter video ID";
-          label.Text = "Video ID";
             
-          buttonOk.Text = "OK";
-          buttonCancel.Text = "Cancel";
-          buttonOk.DialogResult = DialogResult.OK;
-          buttonCancel.DialogResult = DialogResult.Cancel;
+            #region WinProperties
+            Form form = new Form();
+            Label label = new Label();
+            TextBox textBox = new TextBox();
+            Button buttonOk = new Button();
+            Button buttonCancel = new Button();
 
-          label.SetBounds(9, 20, 372, 13);
-          textBox.SetBounds(12, 36, 372, 20);
-          buttonOk.SetBounds(228, 72, 75, 23);
-          buttonCancel.SetBounds(309, 72, 75, 23);
-          label.AutoSize = true;
-          textBox.Anchor = textBox.Anchor | AnchorStyles.Right;
-          buttonOk.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-          buttonCancel.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            form.Text = "Enter video ID";
+            label.Text = "Video ID";
 
-          form.ClientSize = new Size(396, 107);
-          form.Controls.AddRange(new Control[] { label, textBox, buttonOk, buttonCancel });
-          form.ClientSize = new Size(Math.Max(300, label.Right + 10), form.ClientSize.Height);
-          form.FormBorderStyle = FormBorderStyle.FixedDialog;
-          form.StartPosition = FormStartPosition.CenterScreen;
-          form.MinimizeBox = false;
-          form.MaximizeBox = false;
-          form.AcceptButton = buttonOk;
-          form.CancelButton = buttonCancel;
+            buttonOk.Text = "OK";
+            buttonCancel.Text = "Cancel";
+            buttonOk.DialogResult = DialogResult.OK;
+            buttonCancel.DialogResult = DialogResult.Cancel;
+
+            label.SetBounds(9, 20, 372, 13);
+            textBox.SetBounds(12, 36, 372, 20);
+            buttonOk.SetBounds(228, 72, 75, 23);
+            buttonCancel.SetBounds(309, 72, 75, 23);
+            label.AutoSize = true;
+            textBox.Anchor = textBox.Anchor | AnchorStyles.Right;
+            buttonOk.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            buttonCancel.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+
+            form.ClientSize = new Size(396, 107);
+            form.Controls.AddRange(new Control[] { label, textBox, buttonOk, buttonCancel });
+            form.ClientSize = new Size(Math.Max(300, label.Right + 10), form.ClientSize.Height);
+            form.FormBorderStyle = FormBorderStyle.FixedDialog;
+            form.StartPosition = FormStartPosition.CenterScreen;
+            form.MinimizeBox = false;
+            form.MaximizeBox = false;
+            form.AcceptButton = buttonOk;
+            form.CancelButton = buttonCancel; 
+            #endregion
 
           DialogResult dialogResult = form.ShowDialog();
-          string value = textBox.Text;
-
           if (form.DialogResult == DialogResult.OK ) 
           {
-              int i = listVideosView.FocusedItem.Index;
-              
-              //if (value.Contains("?v=")) listVideosView.FocusedItem.SubItems.Add(value.Substring(value.LastIndexOf("?v=") + 3));
-              //else listVideosView.FocusedItem.SubItems.Add(value);
-
-              if (value.Contains("?v="))
-              {
-                  VideoFilename.Add(listVideosView.FocusedItem.Text);
-                  VideoStatus.Add("Completed");
-                  VideoId.Add(value.Substring(value.LastIndexOf("?v=") + 3));
-              }
-              else
-              {
-                  VideoFilename.Add(listVideosView.FocusedItem.Text);
-                  VideoStatus.Add("Completed");
-                  VideoId.Add(value);
-              }
+              VideoFilename.Add(listVideosView.FocusedItem.Text);
+              VideoStatus.Add("Completed");
+              if (textBox.Text.Contains("?v=")) VideoId.Add(textBox.Text.Substring(textBox.Text.LastIndexOf("?v=") + 3));
+              else VideoId.Add(textBox.Text);
           }
-
           drawVideoList();
         }
        
